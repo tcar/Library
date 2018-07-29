@@ -28,20 +28,17 @@ func (uc *UserController) Register(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		log.Print(err)
-		return
+		panic("invalid request body")
 	}
 
 	alreadyCreated := checkUser(uc.DB, rr.Email)
 	if alreadyCreated {
-		w.Write([]byte("user already exists"))
-		return
+		panic("user already ecists")
 	}
 
 	result, err := repositories.CreateUser(uc.DB, rr.Email, rr.Name, rr.Password)
 	if err != nil {
-		log.Print("error while creating user")
-		log.Fatal(err)
+		panic("error while creating user")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -78,4 +75,12 @@ func checkUser(db *sql.DB, email string) bool {
 
 type userCreatedResponse struct {
 	Token string
+}
+
+func registerRecover() {
+	r := recover()
+	if r != nil {
+		log.Fatal("registration error:", r)
+
+	}
 }
